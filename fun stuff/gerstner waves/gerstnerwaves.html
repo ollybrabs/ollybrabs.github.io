@@ -1,0 +1,197 @@
+<html>
+	
+<head>
+	<title>Gerstner waves</title>
+</head>
+
+
+<body>
+<style>
+html, body {
+	width:  100%;
+	height: 100%;
+	margin: 0px;
+	border: 0;
+	display: block;
+	overflow: hidden;
+}
+</style>
+
+<canvas style="display: block;" id="canv"></canvas>
+
+<div style="position: absolute; top: 0; right: 0; color: rgba(62, 161, 218, 1);">
+	<br>
+	Wave length:
+	<input type="range" min="1" max="200" value="30" class="slider" id="myRange">
+	
+	C (faster / slower):
+	<input type="range" min="0" max="100" value="1" class="slider" id="myRange2">
+	
+	<br>
+	Rows:
+	<input type="range" min="1" max="200" value="80" class="slider" id="myRange3">
+	
+	Columns:
+	<input type="range" min="1" max="50" value="10" class="slider" id="myRange4">
+	
+	<br>
+	Q (amplitude):
+	<input type="range" min="0" max="10" value="10" class="slider" id="myRange5">
+	
+	<br>
+	X/Y Randomness:
+	<input type="range" min="0" max="10" value="0" class="slider" id="myRange6">
+	
+	Amplitude Randomness:
+	<input type="range" min="0" max="10" value="0" class="slider" id="myRange7">
+</div>
+	
+<script>
+
+wl = 25;
+c = 0.03;
+Q = 1;
+amp = 1;
+
+spX = 40;
+spY = 40;
+
+xRand = 0;
+
+t=0;
+ps = [];
+
+ox = -40;
+oy = 40;
+
+row = 60;
+col = 10;
+aRF = 0; //amplitude random factor
+for(var y = 0; y < 50; y++) {
+	arr = [];
+	for(var x = 0; x < 200; x++) {
+		aR = Math.floor(Math.random() * 30);
+		bR = Math.floor(Math.random() * 30);
+		xp = 
+		{
+			"x": 10 + 10 * x,
+			"y": 40 + 10 * y,
+			"wl": Math.random(),
+			"a": aR,
+			"b": bR,
+			"ampVar": Math.random() * (0.2 + 0.3) - 0.3
+		};
+
+		arr.push(xp);
+	}
+	ps.push(arr);
+}
+
+cv = document.getElementById("canv");
+ctx = cv.getContext("2d");
+
+setInterval(loop, 1000/60); //60 updates per second
+
+//update fluid packages 60 times per second
+function loop() {
+	ctx.canvas.width = window.innerWidth;
+	ctx.canvas.height = window.innerHeight;
+	h = cv.height;
+	w = cv.width;
+	t++;
+	ctx.fillStyle = "#0e2c34";
+	ctx.fillRect(0, 0, w, h);
+	
+	ctx.fillStyle = "lime";
+	ctx.font = "10px Arial"
+	ctx.fillText(t, 10, 10);
+	ctx.fillText(row*col + " Fluid Packages", 10, 20);
+	
+	for(var b = 1; b < col; b++) {
+		for(var a = 1; a < row; a++) {
+			//wave height
+			//H = (2/k) * exp(kbË˘)
+			
+			o = ps[b][a];
+			
+			if(a % 10 == 0) {
+				ctx.fillStyle = "red";	
+			}
+			
+			ctx.strokeStyle = "rgba(62, 161, 218, 1)";
+			ctx.fillStyle = "rgba(62, 161, 218, 1)";
+			ctx.roundRect(o.x + ox + a * spX, 500 + o.y + oy - b * spY, 7, 7, 1000).stroke();
+			
+			ctx.strokeStyle = "white";
+			k = (2 * Math.PI) / wl;
+			
+			wh = (2/k) * Math.exp(k * b) * Q * amp * (1 + o.ampVar * aRF);
+			//if((a % 10) == 0 && wh > 6) {
+				ctx.globalAlpha = 1.0 * wh / 50;
+				ctx.lineWidth=0.1;
+				ctx.beginPath();
+				ctx.arc(ox + xRand * o.a + a + a * spX + 1,500 + xRand * o.b + oy - b - b * spY + 1,wh / 2,0,2*Math.PI);
+				ctx.stroke();
+				ctx.globalAlpha = 1.0;
+			//}
+
+			o.x = xRand * o.a + a + (Q * amp * (1 + o.ampVar * aRF) * (Math.pow(Math.E, k * b)) / k) * Math.sin(k * (a + (c) * t));
+			o.y = xRand * o.b + (b - (Q * amp * (1 + o.ampVar * aRF) * (Math.pow(Math.E, k * b)) / k) * Math.cos(k * (a + (c) * t))) * -1;
+		}
+	}
+}
+
+var slider = document.getElementById("myRange");
+slider.oninput = function() {
+	wl = this.value;
+}
+
+var slider2 = document.getElementById("myRange2");
+slider2.oninput = function() {
+	c = this.value / 100;
+}
+
+var slider3 = document.getElementById("myRange3");
+slider3.oninput = function() {
+	row = this.value;
+}
+
+var slider4 = document.getElementById("myRange4");
+slider4.oninput = function() {
+	col = this.value;
+}
+
+var slider5 = document.getElementById("myRange5");
+slider5.oninput = function() {
+	Q = this.value / 10;
+}
+
+var slider6 = document.getElementById("myRange6");
+slider6.oninput = function() {
+	xRand = this.value / 10;
+}
+
+var slider7 = document.getElementById("myRange7");
+slider7.oninput = function() {
+	aRF = this.value / 10;
+}
+
+CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+	if (w < 2 * r) r = w / 2;
+	if (h < 2 * r) r = h / 2;
+	this.beginPath();
+	this.moveTo(x+r, y);
+	this.arcTo(x+w, y,   x+w, y+h, r);
+	this.arcTo(x+w, y+h, x,   y+h, r);
+	this.arcTo(x,   y+h, x,   y,   r);
+	this.arcTo(x,   y,   x+w, y,   r);
+	this.closePath();
+	this.fill();
+	return this;
+}
+
+</script>
+	
+
+</body>
+</html>
