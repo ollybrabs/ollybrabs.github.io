@@ -1,0 +1,104 @@
+<p>Up arrow to jump!</p>
+<canvas id="cv" height="400" width="600"></canvas>
+
+<script>
+	cv=document.getElementById("cv");
+	ctx=cv.getContext("2d");
+	document.addEventListener("keydown",keyPressed);
+	setInterval(game,1000/30);
+	
+	by=cv.height/2;
+	bx=10;
+	bw=bh=10;
+	ba=0;
+	grav=1;
+	bacap=10;
+	bpipe=-1;
+	bscore=0;
+	
+	pipes=[];
+	pipetimer=45;
+	ctimer=0;
+	pipegap=80;
+	pipewidth=50;
+	pipemovepertick=6;
+	pipegapmin=60;
+	pipegapmax=cv.height-pipegap*2;
+	
+	function game() {
+		ctx.fillStyle="white";
+		ctx.fillRect(0,0,cv.width,cv.height);
+		
+		ctx.fillStyle="black";
+		ctx.fillRect(bx,by,bw,bh);
+		
+		if(ba<bacap)
+			ba+=grav;
+		
+		ctimer-=1;
+		if(ctimer<=0) {
+			ctimer=pipetimer;
+			pipegapy=Math.floor(Math.random()*pipegapmax)+pipegapmin;
+			idx=pipes.length;
+			mepipe={'x':cv.width+pipewidth,'gapStart':pipegapy};
+			pipes[idx]=mepipe;
+		}
+		
+		if(bpipe!=-1) { //in a pipe
+			if(by<=pipes[bpipe].gapStart||(by+bh)>=pipes[bpipe].gapStart+pipegap) { //died
+				ba=0;
+				by=cv.height/2;
+				pipes=[];
+				bpipe=-1;
+				bscore=0;
+			}
+			
+			if((pipes[bpipe].x+pipewidth)<bx) { //made it out the pipe
+				bscore+=1;
+				bpipe=-1;
+			}
+		}
+			
+		for(x=0;x<pipes.length;x++) {
+			pipes[x].x-=pipemovepertick;
+			
+			if(pipes[x].x<=(0-pipewidth)) {
+				continue;
+			}
+			
+			//valid pipe
+			if(bx>=pipes[x].x&&bx<=pipes[x].x+pipewidth&&bpipe==-1) { //in a new pipe
+				bpipe=x;
+				if(by<=pipes[x].gapStart||(by+bh)>=pipes[x].gapStart+pipegap) { //died
+					ba=0;
+					by=cv.height/2;
+					pipes=[];
+					bpipe=-1;
+					bscore=0;
+				}
+			}
+			
+			ctx.fillRect(pipes[x].x,0,pipewidth,pipes[x].gapStart);
+			ctx.fillRect(pipes[x].x,pipes[x].gapStart+pipegap,pipewidth,cv.height);
+		}
+		
+		by+=ba;
+		
+		ctx.fillStyle="lime";
+		ctx.font="20px Arial";
+		ctx.fillText(bscore,20,20);
+		
+		if(by+bh>=cv.height) {
+			ba=0;
+			by=cv.height/2;
+			pipes=[];
+			bpipe=-1;
+			bscore=0;
+		}
+	}
+	
+	function keyPressed(e) {
+		if(e.keyCode==38)
+			ba=-10;
+	}
+</script>
