@@ -1,0 +1,338 @@
+@import url(https://fonts.googleapis.com/css?family=Oswald:300)   //importing fonts from google
+@font-face
+	font-family: 'Museo-300'
+	src: url('Museo-300.eot?#iefix') format('embedded-opentype'),  url('Museo-300.otf')  format('opentype'), url('Museo-300.woff') format('woff'), url('Museo-300.ttf')  format('truetype'), url('Museo-300.svg#Museo-300') format('svg')
+	font-weight: normal
+	font-style: normal
+
+@mixin tp-color-primary($type, $opacity: 1)    //dark blue
+	@if $type == 1
+		color: rgba(57,63,80, $opacity)
+	@else if $type == 2
+		background: rgba(57,63,80, $opacity)
+	@else
+		color: rgba(57,63,80, $opacity)
+		background: rgba(57,63,80, $opacity)
+	
+@mixin tp-color-secondary($type, $opacity: 1)    //light green
+	@if $type == 1
+		color: rgba(142, 198, 63, $opacity)
+	@else if $type == 2
+		background: rgba(142, 198, 63, $opacity)
+	@else
+		color: rgba(142, 198, 63, $opacity)
+		background: rgba(142, 198, 63, $opacity)
+
+$break-mobile: 520px //default break for mobile devices, at which most elements will be scaled to fit smaller screens
+
+@mixin clearfix
+	&:after
+		content: ""
+		display: table
+		clear: both
+		
+.cleafix 
+	@include clearfix
+	
+.wrapper //contains content on every page
+	min-height: 100%
+	margin-bottom: 120px //sticky footer
+
+//---- GLOBAL STYLES ----//
+.tp-input
+	outline: 0
+	border-radius: 2px
+
+	border: 0 !important
+	padding: 5px 10px !important
+	transition: border 0.3s !important
+	border-bottom: 2px solid rgb(184, 202, 160) !important
+	
+	&:focus
+		border-bottom: 2px solid rgb(142, 198, 63) !important
+	
+		
+.tp-button
+	transition: 0 !important
+	background: #8ec63f !important
+	outline: 0 !important
+	box-shadow: 0 5px #729F32
+	color: rgb(40, 34, 98) !important
+	border: none !important
+	text-decoration: none !important
+	padding: 10px !important
+	font-size: 1.3em !important
+	
+	&:hover
+		background: rgb(142, 198, 63)
+		
+	&:active
+		box-shadow: 0 1px #729F32
+		transform: translateY(4px)
+
+html
+	min-height: 100%
+	position: relative
+	
+body 
+	background: url("../img/bg.png") no-repeat
+	background-size: cover
+
+//---- NAVBAR STYLES ----//
+.pull //pull down menu only displayed on smaller devices. (width < $break-mobile)
+	display: none !important
+	border-top: 1px solid #8ec63f
+	@include tp-color-primary(2)
+	@media (max-width : $break-mobile)
+		display: block !important
+		width: 100% !important
+		text-align: initial !important
+		text-indent: 15px
+		position: relative
+		&:after
+			font-family: FontAwesome
+			content: "\f0c9"
+			width: 30px
+			height: 30px
+			display: inline-block
+			position: absolute
+			right: 15px
+
+.tp-navbar
+	z-index: 2
+	font-family: Lato
+	width: 100%
+	background: white
+	@include tp-color-primary(2)
+	position: relative
+	@media (max-width : $break-mobile)
+		border-bottom: 0
+	.hide-break
+		display: block
+		@media (max-width: $break-mobile)
+			display: none !important
+	ul
+		padding: 0
+		height: 40px
+		margin-bottom: 0px !important
+		@media (max-width : $break-mobile)
+			border: 0
+			display: none
+			height: 280px
+		> li:hover
+			> ul
+				left: 0
+				> li
+					max-height: 100px
+		li
+			ul
+				li
+					display: block
+					float: none
+					max-height: 0
+					transition: max-height 0.3s ease-in-out
+					@media (max-width: $break-mobile)
+						max-height: 999px
+					a
+						width: 100%
+						color: #8ec63f !important
+
+	.tp-navbar-header
+		i
+			@media (max-width: $break-mobile)
+				display: none
+		li
+			ul
+				left: -9999px
+				overflow: hidden
+				@include tp-color-primary(2)
+				cursor: pointer
+				position: absolute
+				height: auto
+				li a
+					padding: 0 18px
+					white-space: nowrap
+					&:hover
+						@include tp-color-secondary(2)
+						color: rgb(57,63,80) !important
+				@media (max-width: $break-mobile)
+					min-width: auto
+					left: 0
+					position: relative
+					padding-left: 20px
+	.tp-right
+		float: right !important
+		padding: 0 10px
+		right: 0
+		a
+			white-space: nowrap
+			@media (max-width: $break-mobile)
+				width: 100%
+				float: none
+	li
+		position: relative
+		display: inline
+		float: left
+		padding: 0 !important
+		&:after
+			content: ""
+			display: block
+			top: 0
+			position: absolute
+			height: 0
+			transition: height 0.2s
+			width: 100%
+			background: rgb(142, 198, 63)
+			color: #282262 !important
+			z-index: -1
+			@media (max-width: $break-mobile)
+				display: none
+		&:hover
+			&:after
+				height: 100%
+			a
+				@include tp-color-primary(1)
+				@media (max-width: $break-mobile)
+					@include tp-color-secondary(1)
+		@media (max-width : $break-mobile)
+			display: block
+			float: none
+			width: 100%
+			right: 0
+	.active //page that the user is currently on
+		@include tp-color-secondary(2)
+		a
+			@include tp-color-primary(1)
+		a
+			box-sizing: border-box
+	a
+		color: black
+		@include tp-color-secondary(1)
+		display: inline-block
+		padding: 0 23px
+		text-align: center
+		text-decoration: none
+		line-height: 55px
+		font-size: 1.05em
+		white-space: nowrap
+		@media (max-width : $break-mobile)
+			width: 100%
+			text-align: left
+			text-indent: 25px
+//---- FOOTER STYLES ----//
+.tp-footer-holder     //holder for the footer
+	width: 100%
+	position: absolute
+	bottom: 0
+	@media (max-width: $break-mobile)
+		position: absolute 
+
+.tp-footer
+	position: relative
+	@include tp-color-primary(2)
+	padding: 10px 10px
+	padding-right: 30px
+	.fa-stack
+		border: 2px solid rgb(142, 198, 63)
+		background: none
+		border-radius: 50%
+		font-size: 1.5em
+		transition: all .5s ease-in-out
+		&:hover
+			@include tp-color-secondary(2)
+			@include tp-color-primary(1)
+	ul
+		margin-bottom: 0 !important
+		float: left
+		padding: 0 !important
+		@media (max-width: $break-mobile)
+			width: 100% !important
+		margin-bottom: 10px
+		li
+			padding: 0 20px
+			text-align: center
+			list-style-type: none
+			float: left
+			display: inline
+			a
+				@include tp-color-secondary(1)
+			.twitter-follow-button
+				margin-top: 10px
+	.footer-legal
+		height: 100%
+		@include tp-color-secondary(1)
+		margin-bottom: 0 !important
+		margin-top: 10px
+		float: right
+		font-family: Lato
+		text-align: center
+	@media (max-width: $break-mobile)
+		text-align: center !important
+		ul
+			display: inline-block
+			float: none
+			width: auto !important
+		.footer-legal
+			float: none
+
+//---- CONTACT PAGE STYLES ----//
+.full-height
+	height: 100%
+	
+.tp-contact-info
+	position: relative
+	padding-bottom: 0 !important
+	width: 80%
+	@include tp-color-primary(2, 0.7)
+	@include tp-color-secondary(1)
+	margin: 0 auto
+	margin-bottom: 50px
+	margin-top: 50px
+	transition: all 0.2s ease-in-out
+	h1
+		margin-bottom: 20px !important
+	ul, li
+		list-style-type: none
+		padding: 0
+		margin: 0
+	ul
+		margin-top: 50px
+		@include tp-color-secondary(2, 1)
+		color: rgb(40, 34, 98)
+		padding: 8px 7px
+
+	li
+		margin-top: 20px
+		&:first-of-type
+			margin-top: 0
+	@media (max-width: $break-mobile)
+		width: 100%
+
+.tp-contact-left
+	float: left
+	width: 50%
+	padding: 20px 40px
+	.fa
+		vertical-align: middle
+		margin-right: 10px
+	@media (max-width: 780px)
+		float: none
+		width: 100%
+		border-bottom: 1px solid rgb(142, 198, 63)
+
+.tp-contact-right
+	float: left
+	width: 50%
+	padding: 20px 40px
+	input, textarea
+		margin-bottom: 25px
+		width: 100%
+		font-family: Lato, sans
+	input
+	textarea
+		height: 100px
+		resize: vertical
+	@media (max-width: 780px)
+		float: none
+		width: 100%
+		margin-bottom: 50px

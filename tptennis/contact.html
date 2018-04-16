@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="js/tp-main.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js"></script> <!-- VALIDATION -->
+	<script src="dist/js/bootstrap.min.js"></script>
+	
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+	<link href="css/font-awesome.min.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/styles.css">
+	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Lato|Museo">
+	<link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+	
+	
+	<title>TP Tennis - Contact</title>
+	<link rel="shortcut icon" href="favicon.ico">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			//initialise mobile menu
+			$(document).tpPullMenu();
+		});
+	</script>
+</head>
+
+<body class="full-height">
+	<div class="wrapper">
+		<div class="tp-navbar clearfix">
+			<ul class="tp-navbar-header clearfix">
+				<li class="nav-logo hide-break">
+					<a href="index.php" class="active">
+						<img src="img/logocleanlogin.png" height="34">
+					</a>
+				</li>
+				<li>
+					<a href="#">Home</a>
+				</li>
+		
+				<li>
+					<a href="#">About</a></li>
+					<li class="dropdown">
+						<a href="#">Venues <i class="fa fa-caret-down"></i></a>
+						<ul>
+							<li><a href="#">Venue 1</a></li>
+						</ul>
+					</li>
+				
+				<li class="active">
+					<a href="#">Contact</a>
+				</li>
+			</ul>
+			<a href="#" class="pull">Menu</a>
+		</div>
+				
+		<div class="tp-contact-info clearfix">
+			<div class="tp-contact-left">
+				<h1>Get in touch</h1>
+				<p>There are a number of ways you can get in touch with us. We will try to get back to you within 24 hours.</p>
+				<ul>
+					<li>
+						<i class="fa fa-phone fa-2x fa-fw"></i>
+						01892 534 699
+					</li>
+					<li>
+						<i class="fa fa-mobile fa-2x fa-fw"></i>
+						+447958 903 021
+					</li>
+					<li>
+						<i class="fa fa-envelope fa-2x fa-fw"></i>
+						tptennis@live.co.uk
+					</li>
+				</ul>
+			</div>
+			<div class="tp-contact-right">
+				<form class="form-validate" role="form">
+					<h1>Send a message</h1>
+					<input name="name" minlength="2" placeholder="name" class="tp-input">
+					<input name="email" type="email" placeholder="email" class="tp-input">
+					<textarea name="message" placeholder="message" class="tp-input"></textarea>
+					<button type="submit" class="contact-button tp-button">Submit</button>
+				</form>
+			</div>
+		</div>
+		
+		<div class="tp-footer-holder">
+			<div class="tp-footer clearfix">
+				<ul>
+					<li>
+						<a href="#">
+							<span class="fa-stack fa-1x">
+								<i class="fa fa-facebook fa-1x fa-fw"></i>
+							</span>
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<span class="fa-stack fa-1x">
+								<i class="fa fa-twitter fa-1x fa-fw"></i>
+							</span>
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<span class="fa-stack fa-1x">
+								<i class="fa fa-google-plus fa-stack-1x fa-fw"></i>
+							</span>
+						</a>
+					</li>
+				</ul>
+				<p class="footer-legal">&copy; Paul Salter 2018</p>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
