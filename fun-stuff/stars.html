@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<script
+		src="http://code.jquery.com/jquery-1.12.4.min.js"
+		integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+		crossorigin="anonymous"></script>
+	
+</head>
+
+<body>
+
+	<div class="star-container"></div>
+
+	<div style="background: white; height: 2000px; padding: 50px;">
+		test text
+		
+		<button>Test button</button>
+	</div>
+	
+	
+	<style>
+	
+	.star-container {
+		width: 100%;
+		height: 100%;
+		position: fixed;
+		
+		pointer-events: none;
+		z-index: 9999;
+	}
+	
+	p, html, body {
+		margin: 0;
+		padding: 0;
+	}
+	
+	p {
+		display: inline-block;
+	}
+	
+	.star {
+		font-size: 1.5em;
+		position: absolute;
+		cursor: default;
+		
+		animation-name: starKey;
+		animation-duration: 1600ms;
+	}
+	
+	@keyframes starKey {
+		0% { font-size: 1.5em; }
+		45% { font-size 1.5em; opacity: 1; }
+		100% { font-size: 0.8em; opacity: 0.2; }
+	}
+	</style>
+	
+	<script type="text/javascript">
+		var colors = [
+			"red",
+			"yellow",
+			"orange",
+			"green",
+			"pink",
+			"cyan"
+		];
+		
+		var lastTime = 0;
+		
+		$(window).mousemove(function(e) {
+			var x = e.clientX;
+			var y = e.clientY;
+			
+			var timeNow = e.timeStamp;
+			var diff = timeNow - lastTime;
+			
+			if(diff > 10) {
+				lastTime = timeNow;
+				spawnStar(x, y);
+			}
+		});
+		
+		$(window).click(function(e) {
+			var x = e.clientX;
+			var y = e.clientY;
+			
+			starExplosion(x, y);
+		});
+		
+		function spawnStar(x, y) {
+			$("<span>", {
+				class: "star",
+				style: "left:" + x + "px;top:" + y + "px;color:" + colors[randInt(0, colors.length-1)] + ";"
+			})
+			.html('*')
+			.appendTo(".star-container")
+			.animate({
+				top: y + randInt(120, 140) + "px",
+				left: x + randInt(-40, 40) + "px"
+			}, 1500, "linear")
+			.queue(function() {
+				$(this).remove();
+			});
+		}
+		
+		function starExplosion(x, y) {
+			for(var i = 0; i++ < 100;) {
+				$("<span>", {
+					class: "star",
+					style: "left:" + x + "px;top:" + y + "px;color:" + colors[randInt(0, colors.length-1)] + ";"
+				})
+				.html('*')
+				.appendTo(".star-container")
+				.animate({
+					top: y + randInt(-140, 140) + "px",
+					left: x + randInt(-140, 140) + "px"
+				}, 1500, "linear")
+				.queue(function() {
+					$(this).remove();
+				});
+			}
+		}
+		
+		function randInt(min, max) { return Math.floor(Math.random()*(max-min+1)+min); }
+	</script>
+</body>
+</html>
