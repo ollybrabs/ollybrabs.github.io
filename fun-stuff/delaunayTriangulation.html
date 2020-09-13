@@ -1,0 +1,178 @@
+<script src="delaunay.js" type="text/javascript"></script>
+<script src="prims.js" type="text/javascript"></script>
+<script src="common.js" type="text/javascript"></script>
+
+<canvas id="cv" width="1024" height="500"></canvas>
+
+<div style="position:absolute;right:0;top:0;color:white;font-size: 0.9em;">
+	<p>Controls:</p>
+	<p>Click: add vertex</p>
+    <p>Click and hold on node to move it</p>
+	<p>C: toggle drawing circumcircles</p>
+	<p>I: toggle drawing node IDs</p>
+	<p>M: toggle drawing edge lengths</p>
+</div>
+
+<!-- basic CSS resets -->
+<style>
+	html,body{padding:0;margin:0;}
+	p{margin:0;padding:0;}
+</style>
+
+<script>	
+	var nodeIds = 0;
+		
+	cv = document.getElementById("cv");
+	cv.width = document.body.clientWidth;
+	cv.height = document.body.clientHeight;
+	
+	ctx = cv.getContext("2d");
+	
+	tris = [];
+	points = [];
+	
+	var drawCircles = false;
+	var drawMetrics = false;
+	var drawVertIds = true;
+	
+	mx = 0;
+	my = 0;
+	
+	var draggablePoint = null;
+	var draggingPoint = null;
+	var isDragging = false;
+	
+	cv.onmousemove = function(e) {
+		mx = e.x;
+		my = e.y;
+		
+		if(draggingPoint != null) {
+			draggingPoint.x = mx;
+			draggingPoint.y = my;
+			
+			tris = delaunay.triangulate(points);
+		}
+	}
+	
+	var oe = [];
+	var uniqueEdges = [];
+
+	cv.onmousedown = function(e) {
+		if(draggablePoint != null) {
+			draggingPoint = draggablePoint;
+		} else {
+			newPoint = new common.shapes.Point(mx, my);
+			newPoint.nodeId = nodeIds++;
+			
+			points.push(newPoint);
+			tris = delaunay.triangulate(points);
+		}
+	}
+	
+	cv.onmouseup = function(e) {
+		draggingPoint = null;
+	}
+	
+	window.onkeydown = function(e) {
+		console.dir(e);	
+		
+		if(e.code == "KeyC") drawCircles = !drawCircles;
+		if(e.code == "KeyM") drawMetrics = !drawMetrics;
+		if(e.code == "KeyI") drawVertIds = !drawVertIds;
+	}
+	
+	function draw() {
+		ctx.fillStyle = "black";
+		ctx.fillRect(0, 0, cv.width, cv.height);
+		
+		ctx.fillStyle = "white";
+		ctx.font = "10px Arial"
+		ctx.fillText("MouseX: " + mx, 10, 10);
+		ctx.fillText("MouseY: " + my, 10, 20);
+		
+		uniqueEdges = prims.getUniqueEdgesFromTriangles(tris);
+		
+		uniqueEdges.forEach(function(edge) {
+			ctx.strokeStyle = "red";
+			ctx.beginPath();
+			ctx.moveTo(edge.p1.x, edge.p1.y);
+			ctx.lineTo(edge.p2.x, edge.p2.y);
+			ctx.stroke();
+			
+			if(drawMetrics) {
+				ctx.fillStyle = "white";
+				ctx.fillText(Math.floor(edge.length), edge.center.x, edge.center.y);
+			}
+		});
+		
+		if(points.length >= 3) {
+			m = getAdjacencyMatrix(uniqueEdges);
+			oe = prim(m);
+		}
+		oe.forEach(function(edge) {
+			ctx.strokeStyle = "cyan";
+			ctx.beginPath();
+			ctx.moveTo(edge.p1.x, edge.p1.y);
+			ctx.lineTo(edge.p2.x, edge.p2.y);
+			ctx.stroke();
+		});
+		
+		for(p in points) {
+			point = points[p];
+			drawCircle(ctx, point.x, point.y, 4, 1);
+			
+			if(drawVertIds) {
+				if(point.nodeId != undefined) {
+					ctx.fillStyle = "white";
+					ctx.fillText(point.nodeId, point.x, point.y - 2);
+				}
+			}
+		}
+		
+		draggablePoint = null;
+		for(t in tris) {
+			triangle = tris[t];
+			lastPoint = triangle.points[triangle.points.length-1];
+			
+			ctx.strokeStyle = "grey";
+			ctx.fillStyle = "green";
+			
+			if(drawCircles)
+				drawCircumCircle(ctx, triangle);
+				
+			for(p in triangle.points) {
+				var point = triangle.points[p];
+				
+				if(mx < point.x + 10 && mx > point.x - 10
+					&& my < point.y + 10 && my > point.y - 10) {
+					ctx.strokeStyle = "green";
+					ctx.fillStyle = "green";
+					
+					draggablePoint = point;
+				} else {
+					ctx.strokeStyle = "red";
+					ctx.fillStyle = "red";
+				}
+				
+				lastPoint = point;
+			}
+		}
+	}
+	
+	setInterval(draw, 1000/30);
+	
+	function drawCircumCircle(ctx, tri) {
+		c = getCircumCircle(tri);
+		
+		drawCircle(ctx, c.cx, c.cy, c.r, 0);
+	}
+	
+	function drawCircle(ctx, cx, cy, rad, fill) {
+		ctx.beginPath();
+		ctx.arc(cx, cy, rad, 0, 2 * Math.PI);
+		if(fill)
+			ctx.fill();
+		else
+			ctx.stroke();
+	}
+</script>

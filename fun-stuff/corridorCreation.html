@@ -1,0 +1,317 @@
+<script src="prims.js" type="text/javascript"></script>
+
+<canvas id="cv" width="500" height="500">
+</canvas>
+
+<button onclick="randBlock()">randomBlock</button>
+<script>
+	var p = true;
+	window.onclick = function(e)
+	{
+		var x = Math.floor(e.x / canvasScaling);
+		var y = Math.floor(e.y / canvasScaling);
+
+		if(p)
+		{
+			startCell = cells[x + y * width];
+		}
+		else
+		{
+			endCell = cells[x + y * width];
+		}
+		
+		p = !p;
+		
+		var t1 = performance.now();
+		myPath = a_star(startCell, endCell);
+		var t2 = performance.now();
+		
+		console.info("A* path calculated in " + (t2 - t1) + "ms");
+	}
+	
+	var cells = [];
+	
+	var cellId = 0;
+	
+	var gc = document.getElementById("cv");
+	var ctx = gc.getContext("2d");
+	
+	var startCell = null;
+	var endCell = null;
+	
+	var width = 25;
+	var height = 25;
+
+    //scale the cavas up by this many units
+	var canvasScaling = 20;
+
+	class Cell
+	{
+		constructor(x, y)
+		{
+			this.x = x;
+			this.y = y;
+			
+			this.weight = gRand();
+			this.nodeId = cellId++;
+		}
+	}
+	
+	function init()
+	{
+		for(var y = 0; y < height; y++)
+		{
+			for(var x = 0; x < width; x++)
+			{
+				cells.push(new Cell(x, y));
+			}
+		}
+		
+		startCell = cells[randInt(0, width-1) + width * randInt(0, height-1)];
+		endCell = cells[randInt(0, width-1) + width * randInt(0, height-1)];
+		
+		myPath = a_star(startCell, endCell);
+		
+		setInterval(draw, 1000/30);
+	}
+	
+	init();
+	
+	function draw()
+	{
+		ctx.fillStyle = "white";
+		ctx.fillRect(0, 0, width, height);
+		
+		cells.forEach(function(cell)
+		{
+			if(cell == undefined)
+			{
+				return;
+			}
+			
+			if(cell.nodeId == undefined)
+			{
+				console.info(cell);
+				console.dir(cell);	
+			}
+			
+			if(cell == startCell || cell == endCell || (myPath != undefined &&
+				myPath.indexOf(cell.nodeId) != -1))
+			{
+				ctx.fillStyle = "white";
+			}
+			else
+			{
+				ctx.fillStyle = colorFromWeighting(cell.weight);
+			}
+			
+			ctx.fillRect(cell.x*canvasScaling, cell.y*canvasScaling, canvasScaling, canvasScaling);
+		});
+	}
+	
+	function colorFromWeighting(weight)
+	{
+		if(weight == Infinity)
+		{
+			return "black";	
+		}
+		
+		return "rgb(" + 255 * weight + ", " + 255 * (1 - weight) + ", 0)"
+	}
+	
+	function randInt(min, max)
+	{
+		return Math.floor(Math.random() * (max-min+1)+min);
+	}
+	
+	function adjacencyMatrixFromCells(cells)
+	{
+		var matrix = [];
+		
+		cells.forEach(function(cell)
+		{
+			var x = cell.x;
+			var y = cell.y;
+			
+			var cellUp = getCell(x, y-1);
+			var cellDown = getCell(x, y+1);
+			var cellLeft = getCell(x-1, y);
+			var cellRight = getCell(x+1, y)
+			
+			if(matrix[cell.nodeId] == undefined)
+			{
+				matrix[cell.nodeId] = [];
+			}
+			
+			if(cellUp != undefined)
+			{
+				matrix[cell.nodeId][cellUp.nodeId] = cellUp.weight;
+			}
+			if(cellDown != undefined)
+			{
+				matrix[cell.nodeId][cellDown.nodeId] = cellDown.weight;
+			}
+			if(cellLeft != undefined)
+			{
+				matrix[cell.nodeId][cellLeft.nodeId] = cellLeft.weight;
+			}
+			if(cellRight != undefined)
+			{
+				matrix[cell.nodeId][cellRight.nodeId] = cellRight.weight;
+			}
+		});
+		
+		return matrix;
+	}
+	
+	function getCell(x, y)
+	{
+		return cells[x + y * width];	
+	}
+	
+	var astarmaxattempts = 1000;
+	function a_star(start, end)
+	{
+		closedSet = [];
+		openSet = [start.nodeId];
+		
+		cameFrom = [];
+		
+		gScore = [];
+		gScore[start.nodeId] = 0;
+		
+		fScore = [];
+		fScore[start.nodeId] = heuristic_cost_estimate(start, end);
+		
+		while(openSet.length != 0)
+		{
+			var lowestFIdx = -1;
+			var lowestFScore = Infinity;
+			fScore.forEach(function(score, idx)
+			{
+				if(score < lowestFScore && openSet.indexOf(idx) != -1)
+				{
+					lowestFScore = score;
+					lowestFIdx = idx;
+				}
+			});
+			
+			var current = lowestFIdx;
+			
+			if(current == end.nodeId)
+			{
+				return reconstruct_path(cameFrom, current);
+			}
+			
+			openSet.splice(openSet.indexOf(lowestFIdx), 1);
+			closedSet.push(lowestFIdx);
+			
+			var c = getCellById(current);
+			
+			getCellNeighbours(c.x, c.y).forEach(function(cellN)
+			{
+				//console.info("here");
+				if(closedSet.indexOf(cellN.nodeId) != -1)
+				{
+					//console.info("return");
+					return;
+				}
+				
+				tentative_gScore = gScore[current] + cellN.weight;
+				
+				if(openSet.indexOf(cellN.nodeId) == -1)
+				{
+					openSet.push(cellN.nodeId);
+				}
+				else if(tentative_gScore >= gScore[cellN.nodeId])
+				{
+					return;
+				}
+				
+				//console.info("here");
+				
+				cameFrom[cellN.nodeId] = current;
+				gScore[cellN.nodeId] = tentative_gScore;
+				fScore[cellN.nodeId] = gScore[cellN.nodeId] + heuristic_cost_estimate(cellN, end);
+			});
+		}
+	}
+	
+	function reconstruct_path(cameFrom, current)
+	{
+		var totalPath = [current];
+		while(current in cameFrom)
+		{
+			current = cameFrom[current];
+			totalPath.push(current);
+		}
+		
+		return totalPath;
+	}
+	
+	function getCellById(id)
+	{
+		return cells[id];
+	}
+	
+	function getCellNeighbours(x, y)
+	{
+		var n = [];
+		n.push(getCell(x, y-1));
+		n.push(getCell(x, y+1));
+		n.push(getCell(x-1, y));
+		n.push(getCell(x+1, y));
+		
+		n = n.filter(function(c)
+		{
+			return c != null;
+		});
+		
+		return n;
+	}
+	
+	function heuristic_cost_estimate(start, end)
+	{
+		return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
+	}
+	
+	function gRand()
+	{
+		var r = 0;
+		var s = 20;
+		
+		for(var i = 0; i < s; i++)
+		{
+			r += Math.random();
+		}
+		
+		return r / s;
+	}
+	
+	function randBlock()
+	{
+		var x = randInt(0, 99);
+		var y = randInt(0, 99);
+		
+		var sx = randInt(1, 10);
+		var sy = randInt(1, 10);
+		
+		for(var j = y; j < y + sy; j++)
+		{
+			for(var i = x; i < x + sx; i++)
+			{
+				cells[i + j * width].weight = Infinity;
+			}
+		}
+	}
+	
+	function randInt(min, max) {
+		return Math.floor(Math.random() * (max - min)) + min;
+	}
+</script>
+
+<style>
+	body, html {
+		padding: 0; margin: 0;
+	}
+</style>
